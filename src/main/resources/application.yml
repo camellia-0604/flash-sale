@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: flash-sale
+
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3308/flash_sale?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true}
+    username: ${DB_USERNAME:flashsale}
+    password: ${DB_PASSWORD:flashsale-local-only}
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    validate-on-migrate: true
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6381}
+      timeout: ${REDIS_TIMEOUT:2s}
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+
+server:
+  port: ${SERVER_PORT:8081}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
