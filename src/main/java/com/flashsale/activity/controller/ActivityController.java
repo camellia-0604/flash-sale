@@ -3,7 +3,7 @@ package com.flashsale.activity.controller;
 import com.flashsale.activity.service.ActivityService;
 import com.flashsale.activity.vo.ActivityView;
 import com.flashsale.common.ApiResponse;
-import com.flashsale.reservation.FlashSaleInventoryService;
+import com.flashsale.reservation.FlashSaleReservationService;
 import com.flashsale.reservation.ReservationResult;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
@@ -23,12 +23,12 @@ import java.util.List;
 @Validated
 public class ActivityController {
     private final ActivityService activityService;
-    private final FlashSaleInventoryService inventoryService;
+    private final FlashSaleReservationService reservationService;
 
     public ActivityController(ActivityService activityService,
-                              FlashSaleInventoryService inventoryService) {
+                              FlashSaleReservationService reservationService) {
         this.activityService = activityService;
-        this.inventoryService = inventoryService;
+        this.reservationService = reservationService;
     }
 
     /** 返回当前处于有效时间窗口的在线活动。 */
@@ -37,7 +37,7 @@ public class ActivityController {
         return ApiResponse.success(activityService.listActive());
     }
 
-    /** 抢占秒杀资格；成功只代表 Redis 预扣，Day 3 才会异步创建数据库订单。 */
+    /** 抢占秒杀资格；成功后立即发送 RabbitMQ 消息，由消费者异步创建数据库订单。 */
     @PostMapping("/{activityId}/reservations")
     public ApiResponse<ReservationResult> reserve(
             @PathVariable @Positive long activityId,
@@ -45,6 +45,6 @@ public class ActivityController {
             @RequestHeader("X-Request-Id")
             @Pattern(regexp = "[A-Za-z0-9._-]{8,64}") String requestId
     ) {
-        return ApiResponse.success(inventoryService.reserve(activityId, userId, requestId));
+        return ApiResponse.success(reservationService.reserve(activityId, userId, requestId));
     }
 }

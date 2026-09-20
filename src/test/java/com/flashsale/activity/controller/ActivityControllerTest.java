@@ -2,7 +2,7 @@ package com.flashsale.activity.controller;
 
 import com.flashsale.activity.service.ActivityService;
 import com.flashsale.activity.vo.ActivityView;
-import com.flashsale.reservation.FlashSaleInventoryService;
+import com.flashsale.reservation.FlashSaleReservationService;
 import com.flashsale.reservation.ReservationCode;
 import com.flashsale.reservation.ReservationResult;
 import org.junit.jupiter.api.Test;
@@ -29,7 +29,7 @@ class ActivityControllerTest {
     @MockitoBean
     private ActivityService activityService;
     @MockitoBean
-    private FlashSaleInventoryService inventoryService;
+    private FlashSaleReservationService reservationService;
 
     /** API 应使用统一响应并保留金额与库存字段。 */
     @Test
@@ -51,7 +51,7 @@ class ActivityControllerTest {
     /** 合法用户和请求标识会原样进入 Lua 服务，并返回稳定业务编码。 */
     @Test
     void shouldReserveFlashSaleQualification() throws Exception {
-        when(inventoryService.reserve(1L, 9L, "request-0009"))
+        when(reservationService.reserve(1L, 9L, "request-0009"))
                 .thenReturn(ReservationResult.of(ReservationCode.ACCEPTED, "request-0009"));
 
         mvc.perform(post("/api/activities/1/reservations")

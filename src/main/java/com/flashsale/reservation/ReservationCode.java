@@ -9,7 +9,9 @@ public enum ReservationCode {
     ENDED(2, false, "活动已经结束"),
     SOLD_OUT(3, false, "活动库存已售罄"),
     DUPLICATE(4, false, "当前用户已经抢购过该活动"),
-    NOT_READY(5, false, "活动库存尚未完成预热");
+    NOT_READY(5, false, "活动库存尚未完成预热"),
+    QUEUE_UNAVAILABLE(6, false, "消息未进入下单队列，资格已经补偿，请稍后重试"),
+    PUBLISH_PENDING(7, true, "消息确认结果未知，系统正在对账，请查询订单结果");
 
     private final long value;
     private final boolean accepted;

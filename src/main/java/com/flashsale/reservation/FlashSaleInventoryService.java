@@ -22,7 +22,7 @@ import java.util.List;
  * Redis 秒杀库存服务。
  *
  * <p>应用启动时将在线活动预热到 Redis；请求阶段只执行 Lua，一次完成时间窗口、
- * 一人一单和库存扣减。Day 2 的成功表示取得资格，Day 3 才会异步创建 MySQL 订单。</p>
+ * 一人一单和库存扣减。成功结果随后由编排服务发送到 RabbitMQ 异步创建订单。</p>
  */
 @Service
 public class FlashSaleInventoryService {
@@ -31,6 +31,8 @@ public class FlashSaleInventoryService {
             loadScript("scripts/initialize-activity.lua");
     private static final DefaultRedisScript<Long> RESERVE_SCRIPT =
             loadScript("scripts/reserve-stock.lua");
+    private static final DefaultRedisScript<Long> COMPENSATE_SCRIPT =
+            loadScript("scripts/compensate-stock.lua");
 
     private final StringRedisTemplate redisTemplate;
     private final FlashSaleActivityMapper activityMapper;
@@ -89,6 +91,20 @@ public class FlashSaleInventoryService {
             throw new IllegalStateException("Redis did not return a reservation result");
         }
         return ReservationResult.of(ReservationCode.from(rawCode), requestId);
+    }
+
+    /**
+     * 归还尚未形成订单的 Redis 资格。
+     *
+     * @return 1 已补偿，0 资格不存在或已被其他请求替代，-1 活动状态已过期需对账
+     */
+    public long compensate(long activityId, long userId, String requestId) {
+        Long result = redisTemplate.execute(
+                COMPENSATE_SCRIPT,
+                List.of(FlashSaleRedisKeys.state(activityId), FlashSaleRedisKeys.buyers(activityId)),
+                Long.toString(userId), requestId
+        );
+        return result == null ? -1 : result;
     }
 
     /** 查询 Redis 可抢库存；缓存暂不可用时使用 MySQL 基线，查询值不参与资格判断。 */

@@ -18,6 +18,34 @@ spring:
       port: ${REDIS_PORT:6381}
       timeout: ${REDIS_TIMEOUT:2s}
 
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5673}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+    publisher-confirm-type: correlated
+    publisher-returns: true
+    template:
+      mandatory: true
+    listener:
+      simple:
+        concurrency: 1
+        max-concurrency: 4
+        prefetch: 16
+        default-requeue-rejected: false
+        retry:
+          enabled: true
+          max-attempts: 3
+          initial-interval: 200ms
+          multiplier: 2
+          max-interval: 1s
+
+flashsale:
+  reliability:
+    confirm-timeout: ${PUBLISH_CONFIRM_TIMEOUT:3s}
+    reconcile-delay: ${RECONCILE_DELAY:30s}
+    reconcile-interval: ${RECONCILE_INTERVAL:10s}
+
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
