@@ -75,6 +75,22 @@ services:
       retries: 12
       start_period: 30s
 
+  k6:
+    image: grafana/k6:0.54.0
+    profiles: ["loadtest"]
+    environment:
+      BASE_URL: http://flashsale:8081
+      ACTIVITY_ID: ${ACTIVITY_ID:-1}
+      K6_VUS: ${K6_VUS:-20}
+      K6_DURATION: ${K6_DURATION:-10s}
+      USER_BASE: ${USER_BASE:-1000000}
+    volumes:
+      - ./scripts:/scripts:ro
+    command: ["run", "/scripts/load-test.js"]
+    depends_on:
+      flashsale:
+        condition: service_healthy
+
 volumes:
   mysql-data:
   redis-data:

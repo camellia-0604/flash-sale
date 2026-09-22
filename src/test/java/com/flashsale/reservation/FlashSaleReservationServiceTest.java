@@ -3,6 +3,7 @@ package com.flashsale.reservation;
 import com.flashsale.order.messaging.OrderCreationMessage;
 import com.flashsale.order.messaging.OrderMessagePublisher;
 import com.flashsale.order.messaging.PublishResult;
+import com.flashsale.observability.FlashSaleMetrics;
 import com.flashsale.reliability.service.MessageFailureService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,6 +26,8 @@ class FlashSaleReservationServiceTest {
     private OrderMessagePublisher messagePublisher;
     @Mock
     private MessageFailureService failureService;
+    @Mock
+    private FlashSaleMetrics metrics;
     @InjectMocks
     private FlashSaleReservationService reservationService;
 

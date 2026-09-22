@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-/** 秒杀活动公开接口；Day 1 只开放安全的活动查询。 */
+/** 秒杀活动查询与资格抢占接口。 */
 @RestController
 @RequestMapping("/api/activities")
 @Validated

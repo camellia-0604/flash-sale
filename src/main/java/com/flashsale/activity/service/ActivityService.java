@@ -15,8 +15,8 @@ import java.util.List;
 /**
  * 秒杀活动公开查询服务。
  *
- * <p>Day 1 先建立清晰的活动状态与时间窗口语义。库存抢占尚未开放，避免在 Redis
- * Lua 和异步落单完成前提供一个会超卖的写接口。</p>
+ * <p>MySQL 保存活动配置，Redis 保存请求链路使用的实时库存；列表查询优先展示
+ * Redis 快照，缓存暂不可用时退回数据库基线。</p>
  */
 @Service
 public class ActivityService {
